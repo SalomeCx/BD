@@ -1,117 +1,107 @@
-CREATE TABLE ListeAttraction (
-	NomAttraction VARCHAR(30) NOT NULL,
-	Numero INTEGER PRIMARY KEY CHECK (Numero LIKE "1%") );
+CREATE TABLE IF NOT EXISTS ETAT (
+	Numero INTEGER NOT NULL,
+	Libelle CHAR(20) NOT NULL,
+	PRIMARY KEY (Numero)
+);
 
-CREATE TABLE HoraireAttraction (
-	Numero INTEGER ,
+CREATE TABLE IF NOT EXISTS INSTALLATION (
+	Numero INTEGER NOT NULL,
+	Nom CHAR(20) NOT NULL,
 	HeureOuverture INTEGER NOT NULL,
 	HeureFermeture INTEGER NOT NULL,
-	Capacite INTEGER NOT NULL ,
-	CHECK (HeureOuverture >= 0 AND HeureOuverture <= 23),
-	CHECK (HeureFermeture >= 0 AND HeureFermeture <= 23),
-	CHECK (HeureOuverture < HeureFermeture),
-	CHECK (Capacite > 0),
-	FOREIGN KEY (Numero) REFERENCES ListeAttraction(Numero) ON DELETE CASCADE);
-
-CREATE TABLE ListeMagasin (
-	NomMagasin VARCHAR(30) NOT NULL,
-	Numero INTEGER PRIMARY KEY CHECK (Numero LIKE "2%") );
-
-CREATE TABLE HoraireMagasin (
-	Numero INTEGER ,
-	HeureOuverture INTEGER NOT NULL,
-	HeureFermeture INTEGER NOT NULL,
-	CHECK (HeureOuverture >= 0 AND HeureOuverture <= 23),
-	CHECK (HeureFermeture >= 0 AND HeureFermeture <= 23),
-	CHECK (HeureOuverture < HeureFermeture),
-	FOREIGN KEY (Numero) REFERENCES ListeMagasin(Numero) ON DELETE CASCADE);
-
-CREATE TABLE ListeRestaurant (
-	NomRestaurant VARCHAR(30) NOT NULL, 
-	Numero INTEGER PRIMARY KEY CHECK (Numero LIKE "3%"));
-
-CREATE TABLE HoraireRestaurant (
-	Numero INTEGER ,
-	HeureOuverture INTEGER NOT NULL,
-	HeureFermeture INTEGER NOT NULL ,
-	Capacite INTEGER NOT NULL ,
-	Reservable INTEGER NOT NULL,
-	CHECK (HeureOuverture >= 0 AND HeureOuverture <= 23),
-	CHECK (HeureFermeture >= 0 AND HeureFermeture <= 23),
-	CHECK (HeureOuverture < HeureFermeture),
-	CHECK (Capacite > 0),
-	CHECK ( (Reservable = 0) OR (Reservable = 1) ),
-	FOREIGN KEY (Numero) REFERENCES ListeRestaurant(Numero) ON DELETE CASCADE);
-
-CREATE TABLE Reservation (
-	NumeroResa INTEGER PRIMARY KEY,
-	Numero INTEGER REFERENCES ListeRestaurant(Numero),
-	DateResa DATE NOT NULL,
-	NbPersonnes INTEGER NOT NULL,
-	CHECK (NbPersonnes > 0));
-
-CREATE TABLE EtatAMR (
-	Numero INTEGER ,
 	Etat INTEGER NOT NULL,
-	NbVisiteurHeure INTEGER NOT NULL,
-	TmpAttente INTEGER NOT NULL,
-	CHECK (Etat >= 0 AND Etat <= 2),
-	CHECK (NbVisiteurHeure >= 0),
-	CHECK (TmpAttente >= 0),
-	CHECK (Numero IN (select Numero from ListeRestaurant UNION 
-						select Numero from ListeMagasin UNION
-						 select Numero from ListeAttraction)));
+	Cout INTEGER NOT NULL,
+	CHECK (HeureOuverture >= 0 AND HeureOuverture <= 23),
+	CHECK (HeureFermeture >= 0 AND HeureFermeture <= 23),
+	CHECK (HeureOuverture < HeureFermeture),
+	CHECK (Cout >= 0),
+	FOREIGN KEY (Etat) REFERENCES ETAT(Numero),
+	PRIMARY KEY (Numero)
+);
 
-CREATE TABLE ListeEmploye (
-	NumeroEmploye INTEGER PRIMARY KEY,
-	Numero INTEGER ,
-	Nom VARCHAR(30) NOT NULL,
-	Prenom VARCHAR(30) NOT NULL,
+CREATE TABLE IF NOT EXISTS ATTRACTION (
+	Numero INTEGER NOT NULL,
+	Capacite INTEGER NOT NULL,
+	TempsAttente TIME NOT NULL,
+	NombreVisiteursHeure INTEGER NOT NULL,
+	CHECK (Capacite >= 0),
+	CHECK (NombreVisiteursHeure >= 0),
+	FOREIGN KEY (Numero) REFERENCES INSTALLATION(Numero) ON DELETE CASCADE,
+	PRIMARY KEY (Numero)
+);
+
+CREATE TABLE IF NOT EXISTS MAGASIN (
+	Numero INTEGER NOT NULL,
+	Revenus INTEGER NOT NULL,
+	CHECK (Revenus >= 0),
+	FOREIGN KEY (Numero) REFERENCES INSTALLATION(Numero) ON DELETE CASCADE,
+	PRIMARY KEY (Numero)
+);
+
+CREATE TABLE IF NOT EXISTS RESTAURANT (
+	Numero INTEGER NOT NULL,
+	Revenus INTEGER NOT NULL,
+	Capacite INTEGER NOT NULL,
+	CHECK (Revenus >= 0),
+	CHECK (Capacite >= 0),
+	FOREIGN KEY (Numero) REFERENCES INSTALLATION(Numero) ON DELETE CASCADE,
+	PRIMARY KEY (Numero)
+);
+
+CREATE TABLE IF NOT EXISTS EMPLOYE (
+	Numero INTEGER NOT NULL,
+	Nom CHAR(20) NOT NULL,
+	Prenom CHAR(20) NOT NULL,
 	Salaire INTEGER NOT NULL,
+	NumeroIntallation INTEGER NOT NULL,
 	CHECK (Salaire >= 1300),
-	CHECK (Numero IN (select Numero from ListeRestaurant UNION 
-						select Numero from ListeMagasin UNION
-						 select Numero from ListeAttraction)));
+	FOREIGN KEY (NumeroIntallation) REFERENCES INSTALLATION(Numero) ON DELETE CASCADE,
+	PRIMARY key (Numero)
+);
 
-CREATE TABLE Produits (
-	NumeroProduit INTEGER PRIMARY KEY,
-	NomProduit VARCHAR(30) NOT NULL,
+CREATE TABLE IF NOT EXISTS PRODUIT (
+	Numero INTEGER NOT NULL,
+	Nom CHAR(20) NOT NULL,
 	Prix INTEGER NOT NULL,
-	CHECK (Prix > 0));
+	PRIMARY KEY (Numero)
+);
 
-CREATE TABLE Emplacements (
-	Numero INTEGER,
-	Quartier VARCHAR(30) NOT NULL,
-	Lattitude INTEGER NOT NULL,
-	Longitude INTEGER NOT NULL,
-	CHECK (Lattitude > 0 AND Lattitude < 15),
-	CHECK (Longitude > 0 AND Longitude < 15),
-	FOREIGN KEY (Numero) REFERENCES ListeRestaurant(Numero) ON DELETE CASCADE);
+CREATE TABLE IF NOT EXISTS FOURNISSEUR (
+	Numero INTEGER NOT NULL,
+	Nom CHAR(20) NOT NULL,
+	PRIMARY KEY (Numero)
+);
 
-CREATE TABLE Fournisseurs (
-	NumeroFournisseur INTEGER PRIMARY KEY,
-	NomFournisseur VARCHAR(30) NOT NULL,
-	Numero INTEGER ,
-	NumeroProduit INTEGER ,
-	Quantite INTEGER NOT NULL,
-	DerniereLivraison DATE NOT NULL,
-	CHECK (Quantite > 0),
-	FOREIGN KEY (Numero) REFERENCES ListeMagasin(Numero) ON DELETE CASCADE);
+CREATE TABLE IF NOT EXISTS RESERVATION (
+	Numero INTEGER NOT NULL,
+	DateResa DATE NOT NULL,
+	NombrePersonnes INTEGER NOT NULL,
+	NumeroRestaurant INTEGER NOT NULL,
+	CHECK (DateResa >= CURDATE()),
+	CHECK (NombrePersonnes > 0),
+	FOREIGN KEY (NumeroRestaurant) REFERENCES RESTAURANT(Numero) ON DELETE CASCADE,
+	PRIMARY KEY (Numero)
+) ;
 
-CREATE TABLE ProduitsDispo (
-	NumeroProduit INTEGER ,
-	Numero INTEGER ,
+ALTER TABLE RESERVATION ADD CHECK ( ( ( SELECT SUM(NombrePersonnes) FROM RESERVATION WHERE (RESERVATION.DateResa = DateResa AND RESERVATION.NumeroRestaurant = NumeroRestaurant) ) + NombrePersonnes ) >= ( SELECT SUM(Capacite) FROM RESTAURANT WHERE RESTAURANT.NumeroRestaurant = NumeroRestaurant) ) ;
+
+CREATE TABLE IF NOT EXISTS VENDRE (
+	NumeroProduit INTEGER NOT NULL,
+	NumeroMagasin INTEGER NOT NULL,
 	Quantite INTEGER NOT NULL,
 	CHECK (Quantite >= 0),
-	FOREIGN KEY (NumeroProduit) REFERENCES Produits(NumeroProduit) ON DELETE CASCADE,
-	FOREIGN KEY (Numero) REFERENCES ListeMagasin(Numero) ON DELETE CASCADE);
+	PRIMARY KEY (NumeroProduit,NumeroMagasin),
+	FOREIGN KEY (NumeroProduit) REFERENCES PRODUIT(Numero) ON DELETE CASCADE,
+	FOREIGN KEY (NumeroMagasin) REFERENCES MAGASIN(Numero) ON DELETE CASCADE
+) ;
 
-CREATE TABLE Recettes (
-	Couts INTEGER NOT NULL,
-	Revenus INTEGER NOT NULL,
-	Numero INTEGER PRIMARY KEY,
-	CHECK (Couts >= 0),
-	CHECK (Revenus >= 0),
-	CHECK (Numero IN (select Numero from ListeRestaurant UNION 
-						select Numero from ListeMagasin)));
+CREATE TABLE IF NOT EXISTS FOURNIR (
+	NumeroProduit INTEGER NOT NULL,
+	NumeroMagasin INTEGER NOT NULL,
+	NumeroFournisseur INTEGER NOT NULL,
+	PRIMARY KEY (NumeroProduit,NumeroMagasin,NumeroFournisseur),
+	FOREIGN KEY (NumeroProduit) REFERENCES PRODUIT(Numero) ON DELETE CASCADE,
+	FOREIGN KEY (NumeroMagasin) REFERENCES MAGASIN(Numero) ON DELETE CASCADE,
+	FOREIGN KEY (NumeroFournisseur) REFERENCES FOURNISSEUR(Numero) ON DELETE CASCADE
+);
 
