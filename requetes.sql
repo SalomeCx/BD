@@ -1,14 +1,23 @@
 --restaurants reservables
-SELECT ListeRestaurant.NomRestaurant FROM ListeRestaurant NATURAL JOIN HoraireRestaurant WHERE Reservable = 1
--- attractions dans la zone (X,Y)
-SELECT ListeAttraction.NomAttraction FROM ListeAttraction NATURAL JOIN HoraireAttraction NATURAL JOIN Emplacements WHERE (Lattitude = x AND Longitude = y)
---magasin qui rapport le plus
-SELECT MAX(Recettes.Revenus - Recettes.Couts) FROM ListeMagasin NATURAL JOIN Recettes 
+CREATE FUNCTION reservables (D DATE, RETURNS CHAR(50))
+RETURN(
+R1 = ETAT WHERE Libelle = "ouvert"  NATURAL JOIN INSTALLATION
+R2 = INSTALLATION NATURAL JOIN RESTAURANT
+R3 = R1 NATURAL JOIN R2 --restaurants ouverts
+R4 = SELECT NumeroRestaurant, SUM( NombrePersonnes) AS Total FROM RESERVATION WHERE (Date = D AND Numero = R3.Numero) GROUPE BY Numero --restaurants ouverts a la date 'D' triés par numero
+
+SELECT NomRestaurant FROM R4 WHERE Total < R3.Capacite NATURAL JOIN R3);
+ 
+--magasin qui rapport le plus	
+SELECT MAX(MAGASIN.Revenus - INSTALLATION.Couts) FROM MAGASIN NATURAL JOIN INSTALLATION 
 -- Magasin ouvert à l'heure h.
-SELECT ListeMagasin.NomMagasin FROM( 
-	(ListeMagasin NATURAL JOIN EtatAMR WHERE EtatAMR.Etat = 1) 
-	NATURAL JOIN 
-	(ListeMagasin NATURAL JOIN HoraireMagasin WHERE h BETWEEN HoraireMagasin.HeureOuverture AND HoraireMagasin.HeureFermeture)
-	)
+CREATE FUNCTION ouvertH (h INTEGER, RETURNS CHAR(50))
+RETURN(
+M1 = INSTALLATION NATURAL JOIN ETAT WHERE Libelle = "ouvert" --installation ouverte
+M2 = MAGASIN NATURAL JOIN M1 --Magasin ouvert
+
+SELECT INSTALLATION.Nom FROM( 
+	( M2 NATURAL JOIN (INSTALLATION WHERE h BETWEEN INSTALLATION.HeureOuverture AND INSTALLATION.HeureFermeture) -- ouvert a l'heure 'h'
+	))
 
 --
