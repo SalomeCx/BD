@@ -32,3 +32,20 @@ select NumeroInstallation, Nom from INSTALLATION where NumeroEtat = 1 ;
 SELECT NumeroInstallation,Nom FROM MAGASIN NATURAL JOIN INSTALLATION natural join VENDRE
 GROUP BY NumeroInstallation
 HAVING COUNT(*) = (SELECT COUNT(NumeroProduit) FROM Produit) ;
+
+/*restaurants reservables*/
+
+CREATE TEMPORARY TABLE R1 AS SELECT * FROM INSTALLATION WHERE NumeroEtat = 1;  
+CREATE TEMPORARY TABLE R2 AS SELECT * FROM INSTALLATION NATURAL JOIN RESTAURANT; 
+CREATE TEMPORARY TABLE R3 AS SELECT * FROM R1 NATURAL JOIN R2; 
+SELECT Nom AS RestaurantsReservables FROM R3 WHERE Capacite > 0;
+
+/* Nombre de places restantes dans un restaurant à une date d*/
+SET @d='2014-01-01';
+SET @nomRestaurant='La taverne du perroquet bourré';
+CREATE TEMPORARY TABLE D1 AS SELECT * FROM INSTALLATION WHERE Nom = @nomRestaurant;
+CREATE TEMPORARY TABLE D2 AS SELECT * FROM D1 NATURAL JOIN RESTAURANT;
+CREATE TEMPORARY TABLE D3 AS SELECT * FROM RESERVATION WHERE DateResa = @d; 
+CREATE TEMPORARY TABLE D4 AS SELECT * FROM D2 NATURAL JOIN D3;
+SELECT Nom AS Restaurant, Capacite - SUM(NombrePersonnes) AS PlacesRestantes FROM D4;
+
