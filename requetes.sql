@@ -1,23 +1,34 @@
---restaurants reservables
-CREATE FUNCTION reservables (D DATE, RETURNS CHAR(50))
-RETURN(
-R1 = ETAT WHERE Libelle = "ouvert"  NATURAL JOIN INSTALLATION
-R2 = INSTALLATION NATURAL JOIN RESTAURANT
-R3 = R1 NATURAL JOIN R2 --restaurants ouverts
-R4 = SELECT NumeroRestaurant, SUM( NombrePersonnes) AS Total FROM RESERVATION WHERE (Date = D AND Numero = R3.Numero) GROUPE BY Numero --restaurants ouverts a la date 'D' triés par numero
+ /* Qui vend le produit de numero NP */
+set @NP = 6 ;
+select NumeroInstallation , Nom from INSTALLATION natural join VENDRE where NumeroProduit = @NP ;
 
-SELECT NomRestaurant FROM R4 WHERE Total < R3.Capacite NATURAL JOIN R3);
- 
---magasin qui rapport le plus	
-SELECT MAX(MAGASIN.Revenus - INSTALLATION.Couts) FROM MAGASIN NATURAL JOIN INSTALLATION 
--- Magasin ouvert à l'heure h.
-CREATE FUNCTION ouvertH (h INTEGER, RETURNS CHAR(50))
-RETURN(
-M1 = INSTALLATION NATURAL JOIN ETAT WHERE Libelle = "ouvert" --installation ouverte
-M2 = MAGASIN NATURAL JOIN M1 --Magasin ouvert
+/* Quelle est le Benefice d'un restaurant de numero NR */
+set @NR = 6 ;
+select 
+(select sum(Revenus) from RESTAURANT where NumeroInstallation = @NR)
+-
+(select sum(Cout) from INSTALLATION natural join RESTAURANT where NumeroInstallation = @NR)
+-
+(select sum(Salaire) from EMPLOYE natural join RESTAURANT where NumeroInstallation = @NR)
+;
 
-SELECT INSTALLATION.Nom FROM( 
-	( M2 NATURAL JOIN (INSTALLATION WHERE h BETWEEN INSTALLATION.HeureOuverture AND INSTALLATION.HeureFermeture) -- ouvert a l'heure 'h'
-	))
+/* Quelle est le Benefice d'un magasin de numero NM */
+set @NM = 4 ;
+select 
+(select sum(Revenus) from MAGASIN where NumeroInstallation = @NM)
+-
+(select sum(Cout) from INSTALLATION natural join MAGASIN where NumeroInstallation = @NM)
+-
+(select sum(Salaire) from EMPLOYE natural join MAGASIN where NumeroInstallation = @NM)
+;
 
---
+/* Magasin qui a le revenus le plus important */
+select NumeroInstallation, Nom from MAGASIN natural join INSTALLATION where Revenus = (select max(revenus) from MAGASIN) ;
+
+/* Installations ouvertes */
+select NumeroInstallation, Nom from INSTALLATION where NumeroEtat = 1 ;
+
+/* Quels magasins vendent tous les produits, équivalent à (MAGASIN NATURAL JOIN INSTALLATION natural join VENDRE) diviser par (select NumeroProduit from Produit) */
+SELECT NumeroInstallation,Nom FROM MAGASIN NATURAL JOIN INSTALLATION natural join VENDRE
+GROUP BY NumeroInstallation
+HAVING COUNT(*) = (SELECT COUNT(NumeroProduit) FROM Produit) ;
