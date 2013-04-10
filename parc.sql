@@ -1,106 +1,106 @@
 CREATE TABLE IF NOT EXISTS ETAT (
-	Numero INTEGER NOT NULL,
+	NumeroEtat INTEGER NOT NULL,
 	Libelle CHAR(50) NOT NULL,
-	PRIMARY KEY (Numero)
+	PRIMARY KEY (NumeroEtat)
 ) ENGINE = InnoDB ;
 
 CREATE TABLE IF NOT EXISTS INSTALLATION (
-	Numero INTEGER NOT NULL,
+	NumeroInstallation INTEGER NOT NULL,
 	Nom CHAR(50) NOT NULL,
 	HeureOuverture INTEGER NOT NULL,
 	HeureFermeture INTEGER NOT NULL,
-	Etat INTEGER NOT NULL,
+	NumeroEtat INTEGER NOT NULL,
 	Cout INTEGER NOT NULL,
 	CHECK (HeureOuverture >= 0 AND HeureOuverture <= 23),
 	CHECK (HeureFermeture >= 0 AND HeureFermeture <= 23),
 	CHECK (HeureOuverture < HeureFermeture),
 	CHECK (Cout >= 0),
-	FOREIGN KEY (Etat) REFERENCES ETAT(Numero),
-	PRIMARY KEY (Numero)
+	FOREIGN KEY (NumeroEtat) REFERENCES ETAT(NumeroEtat),
+	PRIMARY KEY (NumeroInstallation)
 ) ENGINE = InnoDB ;
 
 CREATE TABLE IF NOT EXISTS ATTRACTION (
-	Numero INTEGER NOT NULL,
+	NumeroInstallation INTEGER NOT NULL,
 	Capacite INTEGER NOT NULL,
 	TempsAttente TIME NOT NULL,
 	NombreVisiteursHeure INTEGER NOT NULL,
 	CHECK (Capacite >= 0),
 	CHECK (NombreVisiteursHeure >= 0),
-	FOREIGN KEY (Numero) REFERENCES INSTALLATION(Numero) ON DELETE CASCADE,
-	PRIMARY KEY (Numero)
+	FOREIGN KEY (NumeroInstallation) REFERENCES INSTALLATION(NumeroInstallation) ON DELETE CASCADE,
+	PRIMARY KEY (NumeroInstallation)
 ) ENGINE = InnoDB ;
 
 CREATE TABLE IF NOT EXISTS MAGASIN (
-	Numero INTEGER NOT NULL,
+	NumeroInstallation INTEGER NOT NULL,
 	Revenus INTEGER NOT NULL,
 	CHECK (Revenus >= 0),
-	FOREIGN KEY (Numero) REFERENCES INSTALLATION(Numero) ON DELETE CASCADE,
-	PRIMARY KEY (Numero)
+	FOREIGN KEY (NumeroInstallation) REFERENCES INSTALLATION(NumeroInstallation) ON DELETE CASCADE,
+	PRIMARY KEY (NumeroInstallation)
 ) ENGINE = InnoDB ;
 
 CREATE TABLE IF NOT EXISTS RESTAURANT (
-	Numero INTEGER NOT NULL,
+	NumeroInstallation INTEGER NOT NULL,
 	Revenus INTEGER NOT NULL,
 	Capacite INTEGER NOT NULL,
 	CHECK (Revenus >= 0),
 	CHECK (Capacite >= 0),
-	FOREIGN KEY (Numero) REFERENCES INSTALLATION(Numero) ON DELETE CASCADE,
-	PRIMARY KEY (Numero)
+	FOREIGN KEY (NumeroInstallation) REFERENCES INSTALLATION(NumeroInstallation) ON DELETE CASCADE,
+	PRIMARY KEY (NumeroInstallation)
 ) ENGINE = InnoDB ;
 
 CREATE TABLE IF NOT EXISTS EMPLOYE (
-	Numero INTEGER NOT NULL,
+	NumeroEmploye INTEGER NOT NULL,
 	Nom CHAR(50) NOT NULL,
 	Prenom CHAR(50) NOT NULL,
 	Salaire INTEGER NOT NULL,
 	NumeroInstallation INTEGER NOT NULL,
 	CHECK (Salaire >= 1300),
-	FOREIGN KEY (NumeroInstallation) REFERENCES INSTALLATION(Numero) ON DELETE CASCADE,
-	PRIMARY key (Numero)
+	FOREIGN KEY (NumeroInstallation) REFERENCES INSTALLATION(NumeroInstallation) ON DELETE CASCADE,
+	PRIMARY key (NumeroEmploye)
 ) ENGINE = InnoDB ;
 
 CREATE TABLE IF NOT EXISTS PRODUIT (
-	Numero INTEGER NOT NULL,
+	NumeroProduit INTEGER NOT NULL,
 	Nom CHAR(50) NOT NULL,
 	Prix INTEGER NOT NULL,
-	PRIMARY KEY (Numero)
+	PRIMARY KEY (NumeroProduit)
 ) ENGINE = InnoDB ;
 
 CREATE TABLE IF NOT EXISTS FOURNISSEUR (
-	Numero INTEGER NOT NULL,
+	NumeroFrounisseur INTEGER NOT NULL,
 	Nom CHAR(20) NOT NULL,
-	PRIMARY KEY (Numero)
+	PRIMARY KEY (NumeroFrounisseur)
 ) ENGINE = InnoDB ;
 
 CREATE TABLE IF NOT EXISTS RESERVATION (
-	Numero INTEGER NOT NULL,
+	NumeroReservation INTEGER NOT NULL,
 	DateResa DATE NOT NULL,
 	NombrePersonnes INTEGER NOT NULL,
-	NumeroRestaurant INTEGER NOT NULL,
+	NumeroInstallation INTEGER NOT NULL,
 	CHECK (DateResa >= CURDATE()),
 	CHECK (NombrePersonnes > 0),
-	FOREIGN KEY (NumeroRestaurant) REFERENCES RESTAURANT(Numero) ON DELETE CASCADE,
-	PRIMARY KEY (Numero)
+	FOREIGN KEY (NumeroInstallation) REFERENCES RESTAURANT(NumeroInstallation) ON DELETE CASCADE,
+	PRIMARY KEY (NumeroReservation)
 ) ENGINE = InnoDB ;
 
 CREATE TABLE IF NOT EXISTS VENDRE (
 	NumeroProduit INTEGER NOT NULL,
-	NumeroMagasin INTEGER NOT NULL,
+	NumeroInstallation INTEGER NOT NULL,
 	Quantite INTEGER NOT NULL,
 	CHECK (Quantite >= 0),
-	PRIMARY KEY (NumeroProduit,NumeroMagasin),
-	FOREIGN KEY (NumeroProduit) REFERENCES PRODUIT(Numero) ON DELETE CASCADE,
-	FOREIGN KEY (NumeroMagasin) REFERENCES MAGASIN(Numero) ON DELETE CASCADE
+	PRIMARY KEY (NumeroProduit,NumeroInstallation),
+	FOREIGN KEY (NumeroProduit) REFERENCES PRODUIT(NumeroProduit) ON DELETE CASCADE,
+	FOREIGN KEY (NumeroInstallation) REFERENCES MAGASIN(NumeroInstallation) ON DELETE CASCADE
 )  ENGINE = InnoDB ;
 
 CREATE TABLE IF NOT EXISTS FOURNIR (
 	NumeroProduit INTEGER NOT NULL,
-	NumeroMagasin INTEGER NOT NULL,
+	NumeroInstallation INTEGER NOT NULL,
 	NumeroFournisseur INTEGER NOT NULL,
-	PRIMARY KEY (NumeroProduit,NumeroMagasin,NumeroFournisseur),
-	FOREIGN KEY (NumeroProduit) REFERENCES PRODUIT(Numero) ON DELETE CASCADE,
-	FOREIGN KEY (NumeroMagasin) REFERENCES MAGASIN(Numero) ON DELETE CASCADE,
-	FOREIGN KEY (NumeroFournisseur) REFERENCES FOURNISSEUR(Numero) ON DELETE CASCADE
+	PRIMARY KEY (NumeroProduit,NumeroInstallation,NumeroFournisseur),
+	FOREIGN KEY (NumeroProduit) REFERENCES PRODUIT(NumeroProduit) ON DELETE CASCADE,
+	FOREIGN KEY (NumeroInstallation) REFERENCES MAGASIN(NumeroInstallation) ON DELETE CASCADE,
+	FOREIGN KEY (NumeroFournisseur) REFERENCES FOURNISSEUR(NumeroFournisseur) ON DELETE CASCADE
 ) ENGINE = InnoDB ;
 
 /* -- non valide en mysql 2, mais valide pour la version 5.5.27
