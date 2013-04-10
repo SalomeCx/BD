@@ -67,9 +67,9 @@ CREATE TABLE IF NOT EXISTS PRODUIT (
 ) ENGINE = InnoDB ;
 
 CREATE TABLE IF NOT EXISTS FOURNISSEUR (
-	NumeroFrounisseur INTEGER NOT NULL,
+	NumeroFournisseur INTEGER NOT NULL,
 	Nom CHAR(20) NOT NULL,
-	PRIMARY KEY (NumeroFrounisseur)
+	PRIMARY KEY (NumeroFournisseur)
 ) ENGINE = InnoDB ;
 
 CREATE TABLE IF NOT EXISTS RESERVATION (
@@ -104,20 +104,20 @@ CREATE TABLE IF NOT EXISTS FOURNIR (
 ) ENGINE = InnoDB ;
 
 /* -- non valide en mysql 2, mais valide pour la version 5.5.27
-ALTER TABLE ATTRACTION ADD CHECK ( Numero IN ( SELECT Numero FROM INSTALLATION ) AND NOT Numero IN ( SELECT Numero FROM MAGASIN ) AND NOT Numero IN ( SELECT Numero FROM RESTAURANT ) ) ;
+ALTER TABLE ATTRACTION ADD CHECK ( NumeroInstallation IN ( SELECT NumeroInstallation FROM INSTALLATION ) AND NOT NumeroInstallation IN ( SELECT NumeroInstallation FROM MAGASIN ) AND NOT NumeroInstallation IN ( SELECT NumeroInstallation FROM RESTAURANT ) ) ;
 
-ALTER TABLE MAGASIN ADD CHECK ( Numero IN ( SELECT Numero FROM INSTALLATION ) AND NOT Numero IN ( SELECT Numero FROM ATTRACTION ) AND NOT Numero IN ( SELECT Numero FROM RESTAURANT ) ) ;
+ALTER TABLE MAGASIN ADD CHECK ( NumeroInstallation IN ( SELECT NumeroInstallation FROM INSTALLATION ) AND NOT NumeroInstallation IN ( SELECT NumeroInstallation FROM ATTRACTION ) AND NOT NumeroInstallation IN ( SELECT NumeroInstallation FROM RESTAURANT ) ) ;
 
-ALTER TABLE RESTAURANT ADD CHECK ( Numero IN ( SELECT Numero FROM INSTALLATION ) AND NOT Numero IN ( SELECT Numero FROM ATTRACTION ) AND NOT Numero IN ( SELECT Numero FROM MAGASIN ) ) ;
+ALTER TABLE RESTAURANT ADD CHECK ( NumeroInstallation IN ( SELECT NumeroInstallation FROM INSTALLATION ) AND NOT NumeroInstallation IN ( SELECT NumeroInstallation FROM ATTRACTION ) AND NOT NumeroInstallation IN ( SELECT NumeroInstallation FROM MAGASIN ) ) ;
 
-ALTER TABLE RESERVATION ADD CHECK ( ( ( SELECT SUM(NombrePersonnes) FROM RESERVATION WHERE (RESERVATION.DateResa = DateResa AND RESERVATION.NumeroRestaurant = NumeroRestaurant) ) + NombrePersonnes ) <= ( SELECT SUM(Capacite) FROM RESTAURANT WHERE RESTAURANT.NumeroRestaurant = NumeroRestaurant) ) ;
+ALTER TABLE RESERVATION ADD CHECK ( ( ( SELECT SUM(NombrePersonnes) FROM RESERVATION WHERE (RESERVATION.DateResa = DateResa AND RESERVATION.NumeroInstallation = NumeroInstallation) ) + NombrePersonnes ) <= ( SELECT SUM(Capacite) FROM RESTAURANT WHERE RESTAURANT.NumeroInstallation = NumeroInstallation) ) ;
 */
 
-INSERT INTO ETAT(Numero,Libelle) VALUES
+INSERT INTO ETAT(NumeroEtat,Libelle) VALUES
 (1,"Ouvert"),
 (2,"Fermé");
 
-INSERT INTO INSTALLATION(Numero,Nom,HeureOuverture,HeureFermeture,Etat,Cout) VALUES
+INSERT INTO INSTALLATION(NumeroInstallation,Nom,HeureOuverture,HeureFermeture,NumeroEtat,Cout) VALUES
 (1,"Montagne Russe",'08:00:00','20:00:00',1,50000),
 (2,"Carrousel",'08:00:00','18:00:00',1,15000),
 (3,"Maison hantée",'10:00:00','23:00:00',1,20000),
@@ -126,20 +126,20 @@ INSERT INTO INSTALLATION(Numero,Nom,HeureOuverture,HeureFermeture,Etat,Cout) VAL
 (6,"La taverne du perroquet bourré",'08:00:00','20:00:00',1,20000),
 (7,"Zut, j'ai oublié mes clés",'08:00:00','20:00:00',1,23000);
 
-INSERT INTO ATTRACTION(Numero,Capacite,TempsAttente,NombreVisiteursHeure) VALUES
+INSERT INTO ATTRACTION(NumeroInstallation,Capacite,TempsAttente,NombreVisiteursHeure) VALUES
 (1,50,'00:30:00',200),
 (2,30,'01:00:00',150),
 (3,80,'00:45:00',480);
 
-INSERT INTO MAGASIN(Numero,Revenus) VALUES
+INSERT INTO MAGASIN(NumeroInstallation,Revenus) VALUES
 (4,25000),
 (5,35000);
 
-INSERT INTO RESTAURANT(Numero,Revenus,Capacite) VALUES
+INSERT INTO RESTAURANT(NumeroInstallation,Revenus,Capacite) VALUES
 (6,27000,120),
 (7,30000,0);
 
-INSERT INTO EMPLOYE(Numero,Nom,Prenom,Salaire,NumeroInstallation) VALUES
+INSERT INTO EMPLOYE(NumeroEmploye,Nom,Prenom,Salaire,NumeroInstallation) VALUES
 (1,"Coavoux","Salomé",20000,3),
 (2,"Turon","Jérémy",20000,1),
 (3,"Senel","Yasin",20000,6),
@@ -148,7 +148,7 @@ INSERT INTO EMPLOYE(Numero,Nom,Prenom,Salaire,NumeroInstallation) VALUES
 (6,"Lullaby","Vanelope",1300,4),
 (7,"Azerty","Qwerty",1300,7);
 
-INSERT INTO PRODUIT(Numero,Nom,Prix) VALUES
+INSERT INTO PRODUIT(NumeroProduit,Nom,Prix) VALUES
 (1,"Nutella",4),
 (2,"Malabar",1),
 (3,"Réglisse",1),
@@ -156,17 +156,17 @@ INSERT INTO PRODUIT(Numero,Nom,Prix) VALUES
 (5,"Pull",40),
 (6,"Peluche",18);
 
-INSERT INTO FOURNISSEUR(Numero,Nom) VALUES
+INSERT INTO FOURNISSEUR(NumeroFournisseur,Nom) VALUES
 (1,"Joseph le charpentier"),
 (2,"Barbe bleue"),
 (3,"Hello World !");
 
-INSERT INTO RESERVATION(Numero,DateResa,NombrePersonnes,NumeroRestaurant) VALUES
+INSERT INTO RESERVATION(NumeroReservation,DateResa,NombrePersonnes,NumeroInstallation) VALUES
 (1,'2014-01-01',15,6),
 (2,'2014-01-01',2,6),
 (3,'2014-05-10',5,6);
 
-INSERT INTO FOURNIR(NumeroProduit,NumeroMagasin,NumeroFournisseur) VALUES
+INSERT INTO FOURNIR(NumeroProduit,NumeroInstallation,NumeroFournisseur) VALUES
 (1,4,1),
 (2,4,2),
 (3,4,2),
@@ -175,7 +175,7 @@ INSERT INTO FOURNIR(NumeroProduit,NumeroMagasin,NumeroFournisseur) VALUES
 (6,5,1),
 (6,4,2);
 
-INSERT INTO VENDRE(NumeroProduit,NumeroMagasin,Quantite) VALUES
+INSERT INTO VENDRE(NumeroProduit,NumeroInstallation,Quantite) VALUES
 (1,4,100),
 (2,4,1000),
 (3,4,50000),
