@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS FOURNIR (
 	FOREIGN KEY (NumeroFournisseur) REFERENCES FOURNISSEUR(NumeroFournisseur) ON DELETE CASCADE
 ) ENGINE = InnoDB ;
 
-/* -- non valide en mysql 2, mais valide pour la version 5.5.27
+/* valide pour la version 5.5.27
 ALTER TABLE ATTRACTION ADD CHECK ( NumeroInstallation IN ( SELECT NumeroInstallation FROM INSTALLATION ) AND NOT NumeroInstallation IN ( SELECT NumeroInstallation FROM MAGASIN ) AND NOT NumeroInstallation IN ( SELECT NumeroInstallation FROM RESTAURANT ) ) ;
 
 ALTER TABLE MAGASIN ADD CHECK ( NumeroInstallation IN ( SELECT NumeroInstallation FROM INSTALLATION ) AND NOT NumeroInstallation IN ( SELECT NumeroInstallation FROM ATTRACTION ) AND NOT NumeroInstallation IN ( SELECT NumeroInstallation FROM RESTAURANT ) ) ;

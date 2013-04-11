@@ -49,3 +49,13 @@ CREATE TEMPORARY TABLE D3 AS SELECT * FROM RESERVATION WHERE DateResa = @d;
 CREATE TEMPORARY TABLE D4 AS SELECT * FROM D2 NATURAL JOIN D3;
 SELECT Nom AS Restaurant, Capacite - SUM(NombrePersonnes) AS PlacesRestantes FROM D4;
 
+/* Quels fournisseur livre tous les produits, équivalents à diviser fournir par produit pour récupérer les n° de fournisseurs concernés puis récupérés leur nom dans FOURNISSEUR. */
+select NumeroFournisseur, Nom from FOURNISSEUR where NumeroFournisseur in 
+(SELECT NumeroFournisseur FROM FOURNIR NATURAL JOIN PRODUIT GROUP BY NumeroFournisseur HAVING COUNT(*) = (SELECT COUNT(NumeroProduit) FROM Produit)) ;
+
+/* Les installations qui ne sont pas des attractions, équivalent à soustraire ATTRACTIONS à RESTAURANT */
+SELECT INSTALLATION.NumeroInstallation, INSTALLATION.Nom
+FROM INSTALLATION
+LEFT JOIN ATTRACTION ON ATTRACTION.NumeroInstallation = INSTALLATION.NumeroInstallation
+WHERE ATTRACTION.NumeroInstallation IS NULL ;
+
