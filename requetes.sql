@@ -59,3 +59,13 @@ FROM INSTALLATION
 LEFT JOIN ATTRACTION ON ATTRACTION.NumeroInstallation = INSTALLATION.NumeroInstallation
 WHERE ATTRACTION.NumeroInstallation IS NULL ;
 
+/*Produit inférieur a un prix donné*/
+SET @prix=3;
+SELECT Nom, Prix FROM PRODUIT WHERE Prix <= @prix;
+
+/*Nom et Prenom des employés qui travaillent dans une installation fermée. Mais ne marche pas pour une raison inconnue car la table T est vide.
+CREATE TEMPORARY TABLE FERME AS SELECT * FROM INSTALLATION WHERE NumeroEtat = 2;
+CREATE TEMPORARY TABLE T AS SELECT * FROM EMPLOYE NATURAL JOIN T;
+SELECT Nom, Prenom FROM T;*/
+
+
